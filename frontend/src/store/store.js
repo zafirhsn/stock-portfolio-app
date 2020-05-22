@@ -4,10 +4,14 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
+  token: '',
   state: {
-    loggedIn: false,
-    tokenExpired: false,
-    dataCached: false,
-    sharedUser: {}
-  }
+    name: '',
+    email: '',
+    cash: '',
+    transactions: {},
+    portfolio: {}
+  },
+  symbols: []
+
 })

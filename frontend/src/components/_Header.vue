@@ -9,7 +9,18 @@
 
 <script>
 export default {
-
+  methods: {
+    logout() {
+      this.$store.token = '';
+      this.$store.symbols = '';
+      this.$store.state.name = '';
+      this.$store.state.email = '';
+      this.$store.state.cash = '';
+      this.$store.state.transactions = {};
+      this.$store.state.portfolio = {};
+      this.$router.push('/login');
+    }
+  }
 }
 </script>
 

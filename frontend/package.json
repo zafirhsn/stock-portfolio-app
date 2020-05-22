@@ -43,7 +43,8 @@
     },
     "rules": {
       "no-cond-assign": 0,
-      "no-prototype-builtins": 0
+      "no-prototype-builtins": 0,
+      "no-useless-escape": 0
     }
   },
   "browserslist": [

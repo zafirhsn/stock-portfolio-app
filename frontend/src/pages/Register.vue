@@ -46,28 +46,53 @@ export default {
       //1. check that name contains only letters, hyphens, and apostrophes
       //2. check that email contains @
       
-      //3. Check that password has 1 number, 1 symbol, 1 letter, and at least 8 character in length
-      if (this.pass.length < 8) {
+      // Check that password is between 8 and 32 characters long , , 1 letter, and at least 8 character in length
+      if (this.pass.length < 8 || this.pass.length > 32) {
         this.err = true;
-        this.errMsg = "Password must be at least 8 characters long"
+        this.errMsg = "Password must be between 8 and 32 characters long"
         this.pass = '';
         this.repass = ''
       }
-      if (this.pass !== this.repass) {
+      // Contains at least 1 number
+      else if (!this.pass.match(/[0-9]/)) {
+        this.err = true;
+        this.errMsg = "Password must contain at least one number (0-9)";
+        this.pass = '';
+        this.repass = '';
+      }
+      // Contains at least 1 letter
+      else if (!this.pass.match(/[a-z,A-Z]/)) {
+        this.err = true;
+        this.errMsg = "Password must contain at least one letter";
+        this.pass = '';
+        this.repass = '';
+      }
+      // Contains at least 1 symbol
+      else if (!this.pass.match(/[*.!@#$%^&(){}[\]:;<>,\.\?\/~_\+\-\=]/)) {
+        this.err = true; 
+        this.errMsg = "Password must contain at least one special character *.!@#$%^&(){}[]:;<>,.?/~_+-="
+        this.pass = '';
+        this.repass = '';
+      }
+      // Check that passwords match
+      else if (this.pass !== this.repass) {
         this.err = true;
         this.errMsg = "Passwords must match"
         this.pass = '';
         this.repass = '';
       }
-      if (this.pass === this.repass & this.pass.length >= 8) {
-        this.errMsg = "Good job"
-        setTimeout(()=> {
-          this.$router.push('/home')
-        },2000);
+      // Send to server for server side validation
+      else {
+        this.err = false;
+        this.$http.post(`${process.env.VUE_APP_BACKEND_URL}/register`, { name: this.name, email: this.email, pass: this.pass }).then((res)=>{
+            console.log(res)
+            this.$router.push('/login');
+        }).catch(err=> {
+          this.err = true;
+          this.errMsg = err.body;
+        });
+
       }
-      //4. Check that passwords match
-      //5. Send data to backend
-      
 
     }
   }
