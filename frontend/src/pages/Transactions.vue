@@ -1,8 +1,21 @@
 <template>
-  <div>
+  <v-container>
     <h1>Transactions</h1>
     <compHeader></compHeader>
-  </div>
+    <v-card v-for="(item, index) of transactions" :key="index" class="my-3">
+      <v-card-title class="title font-weight-regular">
+        <v-row dense>
+          <v-col align="center">BUY ({{item.symbol}})</v-col>
+          <v-divider vertical></v-divider>
+          <v-col align="center">{{item.shares}} shares</v-col>
+          <v-divider vertical></v-divider>
+          <v-col align="center">{{item.price}}</v-col>
+        </v-row>
+      </v-card-title>
+    </v-card>
+
+  </v-container>
+
 </template>
 
 <script>
@@ -11,8 +24,7 @@ import Header from '../components/_Header.vue'
 export default {
   data() {
     return {
-      ticker: '',
-      quantity: ''
+      transactions: this.$store.state.transactions,
     }
   },
   components: {

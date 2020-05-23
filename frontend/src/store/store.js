@@ -12,6 +12,7 @@ export const store = new Vuex.Store({
     transactions: {},
     portfolio: {}
   },
-  symbols: []
+  symbols: [],
+  ohlc: {}
 
 })
