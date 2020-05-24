@@ -7,10 +7,10 @@ const verifyToken = require('../utils/jwt');
 // registerController();
 // loginController();
 
-const { register, login } = require("../controllers/index");
-
+const { register, login, buy } = require("../controllers/index");
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/buy', verifyToken, buy);
 
 module.exports = router;

@@ -7,12 +7,25 @@ module.exports = async (req, res, next) => {
     return res.sendStatus(400);
   }
   try {
-    let { user, data, symbols } = await loginService(req.body.email, req.body.pass);
-    let token = await jwt.sign({user}, process.env.SECRET_KEY, {expiresIn: "1d"});
+    let data = await loginService(req.body.email, req.body.pass);
+    let token = await jwt.sign({user: data.user}, process.env.SECRET_KEY, {expiresIn: "1d"});
     
-    return res.send({ token, data, symbols });
+    let response = {}
+    response.token = token;
+    if (data.ohlc) {
+      response.ohlc = data.ohlc
+    }
+    response.symbols = data.symbols;
+
+
+    return res.send(response);
   } catch (err) {
-    return res.status(401).send(err);
+    if (err === "Incorrect password" || err === "User account does not exist") {
+      return res.status(401).send(err);
+    } else {
+      return res.sendStatus(500);
+    }
+
   }
 
 }

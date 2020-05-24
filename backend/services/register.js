@@ -18,8 +18,8 @@ module.exports = async (name, email, pass) => {
       email, 
       pass: hashedPass,
       cash: 5000,
-      transactions: {},
-      portfolio: {}
+      transactions: [],
+      portfolio: []
     }
     let resultDoc = await collection.insertOne(user)
     console.log("insertedCount", resultDoc.insertedCount);

@@ -3,13 +3,15 @@ const bcrypt = require("bcrypt");
 const queryString = require("query-string");
 const request = require("request");
 const requestPromise = require("request-promise-native");
-const sanitizeQuotes = require("../utils/sanitizequotes");
+// const sanitizeQuotes = require("../utils/sanitizequotes");
 const sanitizeSymbols = require("../utils/sanitizesymbols")
-
+const updatePortfolio = require('../utils/updateportfolio');
 module.exports = async (email, pass) => {
 
   const collection = client.db("users").collection("users");
+
   const result = await collection.findOne({ email: email });
+
   if (result) {
     console.log(result);
 
@@ -18,7 +20,7 @@ module.exports = async (email, pass) => {
       throw "Incorrect password";
     } else {
 
-      // Get all symbols listed in the IEX API
+      //^ Get all symbols listed in the IEX API
       let url = "https://sandbox.iexapis.com/stable/ref-data/symbols?" + queryString.stringify({
         token: process.env.IEX_API_KEY
       })
@@ -26,44 +28,28 @@ module.exports = async (email, pass) => {
       symbols = JSON.parse(symbols);
       symbols = sanitizeSymbols(symbols);
       
-      // If user has transactions/portoflio, get latest price + open/close for transactions using IEX API
-      let symbolHash = {};
-      for (let item of result.transactions) {
-        if (!symbolHash[item.symbol]) {
-          symbolHash[item.symbol] = 1;
-        }
-      }
-      for (let item of result.portfolio) {
-        if (!symbolHash[item.symbol]) {
-          symbolHash[item.symbol] = 1;
-        }
-      }
-      let symbolStr = "";
-      for (let key of Object.keys(symbolHash)) {
-        symbolStr += key.toLowerCase() + ',';
+      //^ If user has transactions/portfolio, get latest price + open/close for transactions using IEX API
+      
+      let response = {};
+      if (result.transactions.length && result.portfolio.length) {
+        console.log("user data does exist")
+        let ohlc = await updatePortfolio(result)
+        response.ohlc = ohlc;
       }
 
-      url = "https://sandbox.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
-        symbols: symbolStr,
-        types: "quote",
-        token: process.env.IEX_API_KEY
-      });
-
-      let quotes = await requestPromise.get(url);
-      quotes = JSON.parse(quotes);
-      let data = sanitizeQuotes(quotes);
-      console.log(data);
-
+      let newResult = await collection.findOne({ email: email });
       // Store latest price info into token
       let user = {
-        name: result.name,
+        name: newResult.name,
         email,
-        cash: result.cash,
-        transactions: result.transactions,
-        portfolio: result.portfolio,
+        cash: newResult.cash,
+        transactions: newResult.transactions,
+        portfolio: newResult.portfolio  
       }
+      response.user = user;
+      response.symbols = symbols;
 
-      return {user, data, symbols}
+      return response;
     }
 
   } else {
