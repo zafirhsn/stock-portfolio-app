@@ -9,8 +9,8 @@ export const store = new Vuex.Store({
     name: '',
     email: '',
     cash: '',
-    transactions: {},
-    portfolio: {}
+    transactions: [],
+    portfolio: []
   },
   symbols: [],
   ohlc: {}

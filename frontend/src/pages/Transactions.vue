@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <h1>Transactions</h1>
+  <v-container class="mt-12">
+    <h1 class="mt-12">Transactions</h1>
     <compHeader></compHeader>
     <v-card v-for="(item, index) of transactions" :key="index" class="my-3">
       <v-card-title class="title font-weight-regular">

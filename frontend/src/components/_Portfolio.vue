@@ -1,14 +1,14 @@
 <template>
   <v-container>
     
-    <v-card v-for="(item, index) of portfolio" :key="index" class="my-3" :color="(item.value / item.shares) > ohlc[item.symbol].open ? 'green lighten-3': 'red lighten-3' ">
+    <v-card v-for="(item, index) of portfolio" :key="index" class="my-3" :color="color(item)">
       <v-card-title class="title font-weight-regular">
         <v-row dense>
           <v-col align="center">{{item.symbol}}</v-col>
           <v-divider vertical></v-divider>
           <v-col align="center">{{item.shares}} shares</v-col>
           <v-divider vertical></v-divider>
-          <v-col align="center">{{item.value}}</v-col>
+          <v-col align="center">${{item.value}}</v-col>
         </v-row>
       </v-card-title>
     </v-card>
@@ -20,8 +20,15 @@
 export default {
   data() {
     return {
-      portfolio: this.$store.state.portfolio,
-      ohlc: this.$store.ohlc
+
+    }
+  },
+  computed: {
+    portfolio() {
+      return this.$store.state.portfolio
+    },
+    ohlc() {
+      return this.$store.ohlc
     }
   },
   methods: {
@@ -32,7 +39,20 @@ export default {
       2. Render accordingly
 
        */
+    },
+    color(item) {
+      console.log(item);
+      console.log(this.$store.ohlc)
+      if ((item.value / item.shares) > this.ohlc[item.symbol].open) {
+        return 'green lighten-3'
+      }
+      else if ((item.value / item.shares) < this.ohlc[item.symbol].open) {
+        return 'red lighten-3'
+      } else {
+        return 'grey lighten-2'
+      }
     }
+
   },
   beforeCreate() {
 

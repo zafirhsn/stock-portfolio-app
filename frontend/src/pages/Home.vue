@@ -1,11 +1,12 @@
 <template>
-<v-container>
+<v-container class="mt-12">
 
   <compHeader></compHeader>
 
   <v-row>
 
     <v-col cols="12" sm="5" align="center" justify="start">
+        <h2 class="display-1 my-5">Portfolio - ${{portfolioValue}}</h2>
         <compPortfolio></compPortfolio>
     </v-col>
 
@@ -13,6 +14,7 @@
     <v-divider class="d-none d-sm-block mx-10" justify="end" vertical></v-divider>
 
     <v-col cols="12" sm="5" align="center">
+      <h2 class="display-1 my-5">Cash - ${{cash}}</h2>
       <v-form @submit.prevent="buy()" v-model="valid">
 
         <v-autocomplete background-color="#eeeeee" placeholder="Ticker" v-model="ticker" :rules="[rules.required]" :items="symbols" hide-no-data outlined full-width>
@@ -42,7 +44,6 @@ export default {
     return {
       ticker: '',
       quantity: '',
-      symbols: this.$store.symbols,
       err: false,
       errMsg: '',
       submitted: false,
@@ -57,6 +58,24 @@ export default {
     'compHeader': Header,
     'compPortfolio': Portfolio
   },
+  computed: {
+    portfolioValue() {
+      let value = 0;
+      for (let item of this.$store.state.portfolio) {
+        value += Number(item.value);
+      }
+      return value.toFixed(2);
+    },
+    cash() {
+      if (this.$store.state.cash) {
+        return (this.$store.state.cash).toFixed(2)
+      }
+        return '';
+    },
+    symbols() {
+      return this.$store.symbols
+    }
+  },
   methods: {
     buy() {
       console.log("Buy submitted")
@@ -68,6 +87,32 @@ export default {
         }
       }).then((res)=> {
         console.log(res);
+        this.submitted = false;
+        this.err = false;
+
+        let user = JSON.parse(sessionStorage.getItem("user"));
+        let ohlc;
+        if (sessionStorage.getItem("ohlc")) {
+          ohlc = JSON.parse(sessionStorage.getItem("ohlc"));
+        } else {
+          ohlc = {};
+        }
+
+        user.cash = Number(res.body.data.cash);
+        user.transactions = res.body.data.transactions;
+        user.portfolio = res.body.data.portfolio;
+        let key = Object.keys(res.body.ohlc)[0];
+        ohlc[key] = res.body.ohlc[key];
+
+        this.$set(this.$store.state, "cash", user.cash);
+        this.$set(this.$store.state, "transactions", user.transactions)
+        this.$set(this.$store.state, "portfolio", user.portfolio);
+        this.$set(this.$store, ohlc , ohlc);
+
+        console.log(this.$store.state);
+        console.log(this.$store.ohlc);
+
+
       }).catch(err=> {
         this.err = true;
         this.errMsg = err.body;
@@ -95,6 +140,28 @@ export default {
     2. 
     
     */
+
+    let token = sessionStorage.getItem("token");
+    let user = JSON.parse(sessionStorage.getItem("user"));
+    let symbols = JSON.parse(sessionStorage.getItem("symbols"));
+
+    let ohlc;
+    if (sessionStorage.getItem("ohlc")) {
+      ohlc = JSON.parse(sessionStorage.getItem("ohlc"));
+      this.$store.ohlc = ohlc
+      console.log(this.$store.ohlc);
+    }
+
+    this.$set(this.$store, "token", token);
+
+    this.$set(this.$store.state, "cash", Number(user.cash));
+    this.$set(this.$store.state, "transactions", user.transactions)
+    this.$set(this.$store.state, "portfolio", user.portfolio);
+
+
+    this.$set(this.$store, "symbols", symbols);
+    console.log(this.$store.state);
+
 
   },
   beforeMount() {

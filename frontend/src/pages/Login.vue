@@ -72,18 +72,30 @@ export default {
         this.$http.post(`${process.env.VUE_APP_BACKEND_URL}/login`, { email: this.email, pass: this.pass }).then((res)=> {
           console.log(res);
 
-          this.$store.token = res.body.token;
-          console.log(this.$store.token);
-          let payload = JSON.parse(atob(this.$store.token.split(".")[1]));
-          console.log(payload);
-          this.$store.state.email = payload.user.email;
-          this.$store.state.cash = payload.user.cash;
-          this.$store.state.transactions = payload.user.transactions;
-          this.$store.state.portfolio = payload.user.portfolio;
+          sessionStorage.setItem("token", res.body.token);
 
-          this.$store.symbols = res.body.symbols;
-          this.$store.ohlc = res.body.ohlc;
-          console.log(this.$store.state);
+          // this.$store.token = res.body.token;
+          // console.log(this.$store.token);
+          let payload = JSON.parse(atob(res.body.token.split(".")[1]));
+          console.log(payload);
+
+          sessionStorage.setItem("user", JSON.stringify(payload.user));
+
+
+          // this.$store.state.email = payload.user.email;
+          // this.$store.state.cash = payload.user.cash;
+          // this.$store.state.transactions = payload.user.transactions;
+          // this.$store.state.portfolio = payload.user.portfolio;
+
+          sessionStorage.setItem("symbols", JSON.stringify(res.body.symbols))
+
+          // this.$store.symbols = res.body.symbols;
+          if (res.body.ohlc) {
+            sessionStorage.setItem("ohlc", JSON.stringify(res.body.ohlc));
+          }
+
+          // this.$store.ohlc = res.body.ohlc;
+          // console.log(this.$store.state);
           this.$router.push('/home');
         }).catch(error=> {
           this.submitted = false;
