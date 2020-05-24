@@ -109,6 +109,9 @@ export default {
         this.$set(this.$store.state, "portfolio", user.portfolio);
         this.$set(this.$store, ohlc , ohlc);
 
+        sessionStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("ohlc", JSON.stringify(ohlc));
+
         console.log(this.$store.state);
         console.log(this.$store.ohlc);
 
