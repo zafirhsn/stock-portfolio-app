@@ -98,7 +98,10 @@ module.exports = async (ticker, quantity, payload) => {
 
       let previous = await requestPromise.get(url);
       previous = JSON.parse(previous);
-      ohlc = sanitizeOpen(previous)
+      ohlc = {
+        open: previous.open,
+        close: previous.close
+      }
       console.log(ohlc);
     } else {
       ohlc[ticker] = { open: quote.open, close: quote.close }
