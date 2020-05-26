@@ -1,7 +1,7 @@
 <template>
   <v-container>
     
-    <v-card v-for="(item, index) of portfolio" :key="index" class="my-3" :color="color(item)">
+    <v-card v-for="(item, index) of portfolio" :key="index" class="my-3" :color="color(item)" flat>
       <v-card-title class="title font-weight-regular">
         <v-row dense>
           <v-col align="center">{{item.symbol}}</v-col>
@@ -17,6 +17,11 @@
 </template>
 
 <script>
+/**
+ * Render portfolio as a list of stocks owned with color determined by opening price.
+ * @component
+ */
+
 export default {
   data() {
     return {
@@ -25,52 +30,28 @@ export default {
   },
   computed: {
     portfolio() {
-      return this.$store.state.portfolio
+      return this.$store.state.user.portfolio
     },
     ohlc() {
-      return this.$store.ohlc
+      return this.$store.state.ohlc
     }
   },
   methods: {
-    pollData() {
-      /*
-
-      1. Poll price data every 15 seconds from server
-      2. Render accordingly
-
-       */
-    },
+    /**
+     * Apply color class based on latest price of stock compared to opening price
+     * @param {Object} item - object within user portfolio array { symbol, shares, value}
+     * @public
+     */
     color(item) {
-      console.log(item);
-      console.log(this.$store.ohlc)
-      if ((item.value / item.shares) > this.ohlc[item.symbol].open) {
+      if ((item.value / item.shares) > this.$store.state.ohlc[item.symbol].open) {
         return 'green lighten-3'
       }
-      else if ((item.value / item.shares) < this.ohlc[item.symbol].open) {
+      else if ((item.value / item.shares) < this.$store.state.ohlc[item.symbol].open) {
         return 'red lighten-3'
       } else {
         return 'grey lighten-2'
       }
     }
-
-  },
-  beforeCreate() {
-
-  },
-  created() {
-    /* 
-    
-    1. Take portfolio data from Vuex store and render in component
-    2. Hit server for latest price info + open/close
-    3. Render portfolio with correct colors
-  
-    */
-  },
-  beforeMount() {
-
-  },
-  mounted() {
-
   }
 }
 </script>

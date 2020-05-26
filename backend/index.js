@@ -1,8 +1,6 @@
 const express = require("express");
 const app = express();
 const env = require("dotenv").config();
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const routes = require("./routes")
 const {client, connection} = require("./db");
 
@@ -20,16 +18,6 @@ app.use("/", (req, res, next)=> {
 connection();
 
 app.use('/', routes)
-
-
-/* 
-Routes: 
-
-/register
-/login
-/buy
-
-*/
 
 const port = process.env.PORT || 3000
 app.listen(port, ()=> {

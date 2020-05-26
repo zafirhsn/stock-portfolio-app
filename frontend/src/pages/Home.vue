@@ -6,7 +6,7 @@
   <v-row>
 
     <v-col cols="12" sm="5" align="center" justify="start">
-        <h2 class="display-1 my-5">Portfolio - ${{portfolioValue}}</h2>
+        <h1 class="my-5">Portfolio - ${{portfolioValue}}</h1>
         <compPortfolio></compPortfolio>
     </v-col>
 
@@ -14,7 +14,7 @@
     <v-divider class="d-none d-sm-block mx-10" justify="end" vertical></v-divider>
 
     <v-col cols="12" sm="5" align="center">
-      <h2 class="display-1 my-5">Cash - ${{cash}}</h2>
+      <h1 class="my-5">Cash - ${{cash}}</h1>
       <v-form @submit.prevent="buy()" v-model="valid">
 
         <v-autocomplete background-color="#eeeeee" placeholder="Ticker" v-model="ticker" :rules="[rules.required]" :items="symbols" hide-no-data outlined full-width>
@@ -29,15 +29,20 @@
   </v-row>
 
 
-
-
   <a href="https://iexcloud.io">Data provided by IEX Cloud</a>
 </v-container>
 </template>
 
 <script>
+/**
+ * User home after successfully logged in. Renders portfolio and buy form.
+ * 
+ * @component
+ */
+
 import Header from '../components/_Header.vue';
 import Portfolio from '../components/_Portfolio.vue';
+import reverse from '../utils/reverse';
 
 export default {
   data() {
@@ -61,116 +66,95 @@ export default {
   computed: {
     portfolioValue() {
       let value = 0;
-      for (let item of this.$store.state.portfolio) {
+      for (let item of this.$store.state.user.portfolio) {
         value += Number(item.value);
       }
       return value.toFixed(2);
     },
     cash() {
-      if (this.$store.state.cash) {
-        return (this.$store.state.cash).toFixed(2)
+      if (this.$store.state.user.cash) {
+        return (this.$store.state.user.cash).toFixed(2)
       }
         return '';
     },
     symbols() {
-      return this.$store.symbols
+      return this.$store.state.symbols
     }
   },
   methods: {
+    pollData() {
+      /*
+
+      1. Poll price data every 15 seconds from server
+      2. Render accordingly
+
+       */
+    },
+    /**
+     * Sends ticker and quantity to server to validate purchase of stock. Renders with new data or shows error msg
+     * @public
+     */
     buy() {
-      console.log("Buy submitted")
+      //console.log("Buy submitted")
       this.submitted = true;
       this.$http.post(`${process.env.VUE_APP_BACKEND_URL}/buy`, 
       { ticker: this.ticker, quantity: this.quantity }, {
         headers: {
-          "Authorization": `Bearer ${this.$store.token}`
+          "Authorization": `Bearer ${this.$store.state.token}`
         }
       }).then((res)=> {
-        console.log(res);
+        //console.log(res);
         this.submitted = false;
         this.err = false;
 
-        let user = JSON.parse(sessionStorage.getItem("user"));
-        let ohlc;
-        if (sessionStorage.getItem("ohlc")) {
-          ohlc = JSON.parse(sessionStorage.getItem("ohlc"));
+        if (typeof res.body === "string") {
+          this.err = true;
+          this.errMsg = res.body;
+          this.submitted = false;
         } else {
-          ohlc = {};
+
+          let user = JSON.parse(sessionStorage.getItem("user"));
+          let ohlc = JSON.parse(sessionStorage.getItem("ohlc"))
+
+          user.cash = Number(res.body.data.cash.toFixed(2));
+          user.transactions = reverse(res.body.data.transactions);
+          user.portfolio = reverse(res.body.data.portfolio);
+
+          let key = Object.keys(res.body.ohlc)[0];
+          ohlc[key] = res.body.ohlc[key];
+
+          this.$set(this.$store.state, "user", user)
+          this.$set(this.$store.state, "ohlc" , ohlc);
+
+          sessionStorage.setItem("user", JSON.stringify(user));
+          sessionStorage.setItem("ohlc", JSON.stringify(ohlc));
+
+          //console.log(this.$store.state);
         }
-
-        user.cash = Number(res.body.data.cash);
-        user.transactions = res.body.data.transactions;
-        user.portfolio = res.body.data.portfolio;
-        let key = Object.keys(res.body.ohlc)[0];
-        ohlc[key] = res.body.ohlc[key];
-
-        this.$set(this.$store.state, "cash", user.cash);
-        this.$set(this.$store.state, "transactions", user.transactions)
-        this.$set(this.$store.state, "portfolio", user.portfolio);
-        this.$set(this.$store, ohlc , ohlc);
-
-        sessionStorage.setItem("user", JSON.stringify(user));
-        sessionStorage.setItem("ohlc", JSON.stringify(ohlc));
-
-        console.log(this.$store.state);
-        console.log(this.$store.ohlc);
-
 
       }).catch(err=> {
         this.err = true;
-        this.errMsg = err.body;
+        this.errMsg = "This service is currently unavailable";
         this.submitted = false;
+        return err;
       })
-      /* 
-      
-      1. Make sure form can't be submitted empty 
-      2. Make sure ticker submitted is a valid ticker symbol
-      3. Make sure quantity is a positive whole number
-      4. Send quantity and ticker symbol to server to validate purchase
-      5. If err, show err msg (not enough cash)
-      
-      */
     }
 
   },
-  beforeCreate() {
-    // No access to variables here or DOM
-  },
   created() {
-    /* 
-    
-    1. Use JWT in Vuex store to render portfolio component
-    2. 
-    
-    */
-
+    // Pull all data from sessionStorage and use it to create base state
     let token = sessionStorage.getItem("token");
     let user = JSON.parse(sessionStorage.getItem("user"));
     let symbols = JSON.parse(sessionStorage.getItem("symbols"));
+    let ohlc = JSON.parse(sessionStorage.getItem("ohlc"))
 
-    let ohlc;
-    if (sessionStorage.getItem("ohlc")) {
-      ohlc = JSON.parse(sessionStorage.getItem("ohlc"));
-      this.$store.ohlc = ohlc
-      console.log(this.$store.ohlc);
-    }
+    this.$set(this.$store.state, "ohlc", ohlc);
+    this.$set(this.$store.state, "token", token);
+    this.$set(this.$store.state, "user", user);
+    this.$set(this.$store.state, "symbols", symbols);
 
-    this.$set(this.$store, "token", token);
+    //console.log(this.$store.state);
 
-    this.$set(this.$store.state, "cash", Number(user.cash));
-    this.$set(this.$store.state, "transactions", user.transactions)
-    this.$set(this.$store.state, "portfolio", user.portfolio);
-
-
-    this.$set(this.$store, "symbols", symbols);
-    console.log(this.$store.state);
-
-
-  },
-  beforeMount() {
-
-  },
-  mounted() {
 
   }
 }

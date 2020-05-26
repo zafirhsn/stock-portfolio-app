@@ -6,10 +6,18 @@ const requestPromise = require("request-promise-native");
 // const sanitizeQuotes = require("../utils/sanitizequotes");
 const sanitizeSymbols = require("../utils/sanitizesymbols")
 const updatePortfolio = require('../utils/updateportfolio');
+
+/**
+ * Login service to authenticate user. First, database is queried for user by email. If passwords match, checks to see if user has stock in portfolio. If yes, latest stock info is pulled from IEX API and user's portfolio value is updated. Returns object containing new user data with open/close prices for stock in portfolio + symbols on IEX API. If user has no stock, returns object with user data, empty open/close object + symbols on IEX API 
+ * @module
+ * @param {string} email
+ * @param {string} pass
+ * @returns {Object} Object with user info, open/close data, and symbols on IEX API {user, ohlc, symbols}
+ * @throws {Object}
+ */
 module.exports = async (email, pass) => {
 
   const collection = client.db("users").collection("users");
-
   const result = await collection.findOne({ email: email });
 
   if (result) {
@@ -17,7 +25,7 @@ module.exports = async (email, pass) => {
 
     let correctPass = await bcrypt.compare(pass, result.pass);
     if (!correctPass) {
-      throw "Incorrect password";
+      throw { status: 200, msg: "Incorrect password" };
     } else {
 
       //^ Get all symbols listed in the IEX API
@@ -28,32 +36,20 @@ module.exports = async (email, pass) => {
       symbols = JSON.parse(symbols);
       symbols = sanitizeSymbols(symbols);
       
-      //^ If user has transactions/portfolio, get latest price + open/close for transactions using IEX API
-      
-      let response = {};
-      if (result.transactions.length && result.portfolio.length) {
-        console.log("user data does exist")
-        let ohlc = await updatePortfolio(result)
-        response.ohlc = ohlc;
-      }
+      //^ Update the user's portfolio if they own stocks
+      let { userDoc, ohlc } = await updatePortfolio(result)
 
-      let newResult = await collection.findOne({ email: email });
-      // Store latest price info into token
       let user = {
-        name: newResult.name,
-        email,
-        cash: newResult.cash,
-        transactions: newResult.transactions,
-        portfolio: newResult.portfolio  
+          name: userDoc.name,
+          email,
+          cash: userDoc.cash,
+          transactions: userDoc.transactions,
+          portfolio: userDoc.portfolio  
+        }
+        return { user, ohlc, symbols } 
       }
-      response.user = user;
-      response.symbols = symbols;
 
-      return response;
+    } else {
+      throw { status: 200, msg: "User account does not exist" }
     }
-
-  } else {
-    throw "User account does not exist"
-  }
-
 }

@@ -50,6 +50,12 @@
 
 <script>
 
+/**
+ * Registers users using name, email, and password. Performs validation of email and password.
+ * 
+ * @component
+ */
+
 export default {
   data() {
     return {
@@ -82,72 +88,48 @@ export default {
     }
   },
   methods: {
+    /**
+     * Sends from data to server for validation. If valid, pushes user to /login. If not, displays error message.
+     * @public
+     */
     submit() {
-      console.log("Register submitted")
+      //console.log("Register submitted")
       this.submitted = true;
       this.err = false;
       if (this.valid) {
         this.err = false;
         this.$http.post(`${process.env.VUE_APP_BACKEND_URL}/register`, { name: this.name, email: this.email, pass: this.pass }).then((res)=>{
-            console.log(res)
-            this.$router.push('/login');
+            //console.log(res)
+
+            if (res.body !== 'OK') {
+              this.err = true;
+              this.errMsg = res.body;
+              this.name = '';
+              this.email = '';
+              this.pass = '';
+              this.repass = '';
+              this.submitted = false;        
+            } else {
+              this.$router.push('/login');
+            }
+
+
         }).catch(err=> {
           this.err = true;
-          this.errMsg = err.body;
+          this.errMsg = "This service is currently unavailable";
           this.name = '';
           this.email = '';
           this.pass = '';
           this.repass = '';
           this.submitted = false;
+          return err;
         });
       } else {
         this.submitted = false;
       }
-      //1. Prevent submission if fields empty - DONE
+      //1. Prevent submission if fields empty 
       //1. check that name contains only letters, hyphens, and apostrophes
       //2. check that email contains @
-      
-      // Check that password is between 8 and 32 characters long , , 1 letter, and at least 8 character in length
-      // if (this.pass.length < 8 || this.pass.length > 32) {
-      //   this.err = true;
-      //   this.errMsg = "Password must be between 8 and 32 characters long"
-      //   this.pass = '';
-      //   this.repass = ''
-      //   this.submitted = false;
-      // }
-      // Contains at least 1 number
-      // else if (!this.pass.match(/[0-9]/)) {
-      //   this.err = true;
-      //   this.errMsg = "Password must contain at least one number (0-9)";
-      //   this.pass = '';
-      //   this.repass = '';
-      //   this.submitted = false;
-      // }
-      // Contains at least 1 letter
-      // else if (!this.pass.match(/[a-z,A-Z]/)) {
-      //   this.err = true;
-      //   this.errMsg = "Password must contain at least one letter";
-      //   this.pass = '';
-      //   this.repass = '';
-      //   this.submitted = false;
-      // }
-      // Contains at least 1 symbol
-      // else if (!this.pass.match(/[*.!@#$%^&(){}[\]:;<>,\.\?\/~_\+\-\=]/)) {
-      //   this.err = true; 
-      //   this.errMsg = "Password must contain at least one special character *.!@#$%^&(){}[]:;<>,.?/~_+-="
-      //   this.pass = '';
-      //   this.repass = '';
-      //   this.submitted = false;
-      // }
-      // Check that passwords match
-      // else if (this.pass !== this.repass) {
-      //   this.err = true;
-      //   this.errMsg = "Passwords must match"
-      //   this.pass = '';
-      //   this.repass = '';
-      //   this.submitted = false;
-      // }
-      // Send to server for server side validation
 
     }
   }

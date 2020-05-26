@@ -2,7 +2,7 @@
   <v-container class="mt-12">
     <h1 class="mt-12">Transactions</h1>
     <compHeader></compHeader>
-    <v-card v-for="(item, index) of transactions" :key="index" class="my-3">
+    <v-card v-for="(item, index) of transactions" :key="index" class="my-3" color="#eeeeee" flat>
       <v-card-title class="title font-weight-regular">
         <v-row dense>
           <v-col align="center">BUY ({{item.symbol}})</v-col>
@@ -19,40 +19,38 @@
 </template>
 
 <script>
+/**
+ * Renders transactions from user object
+ * 
+ * @component
+ */
+
 import Header from '../components/_Header.vue'
 
 export default {
   data() {
     return {
-      transactions: this.$store.state.transactions,
+
     }
   },
   components: {
     'compHeader': Header
   },
+  computed: {
+    transactions() {
+      return this.$store.state.user.transactions
+    }
+  },
   methods: {
 
   },
-  beforeCreate() {
-
-  },
   created() {
-    /* 
-    
-    1. Take transactions data from Vuex and render accordingly
-    2. 
-    
-    */
-  },
-  beforeMount() {
-
-  },
-  mounted() {
+    let user = JSON.parse(sessionStorage.getItem("user"));
+    this.$set(this.$store.state.user, "transactions", user.transactions)
+    this.$set(this.$store.state.user, "name", user.name)
+    //console.log(this.$store.state);
 
   }
-
-
-
 }
 </script>
 

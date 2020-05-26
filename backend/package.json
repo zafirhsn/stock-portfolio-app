@@ -4,8 +4,10 @@
   "description": "Node.js for stock portfolio app",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-docs": "jsdoc -c ./config.json"
   },
   "author": "Zafir Hasan",
   "license": "ISC",

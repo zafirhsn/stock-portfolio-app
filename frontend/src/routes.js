@@ -7,7 +7,7 @@ import Transactions from './pages/Transactions.vue';
 export const routes = [
   { path: '/login', name: 'login', component: Login, 
     beforeEnter(to, from, next) {
-      if (sessionStorage.getItem("token") && sessionStorage.getItem("user") && sessionStorage.getItem('symbols')) {
+      if (sessionStorage.getItem("token") && sessionStorage.getItem("user") && sessionStorage.getItem('symbols') && sessionStorage.getItem("ohlc")) {
         next('/home');
       } else {
         next();
@@ -17,7 +17,7 @@ export const routes = [
   { path: '/register', name: 'register', component: Register },
   { path: '/home', name: 'home', component: Home, 
     beforeEnter(to, from, next) {
-      if (!sessionStorage.getItem("token") || !sessionStorage.getItem("user") || !sessionStorage.getItem('symbols')) {
+      if (!sessionStorage.getItem("token") || !sessionStorage.getItem("user") || !sessionStorage.getItem('symbols') || !sessionStorage.getItem("ohlc")) {
         next('/login')
       } else {
         next();
@@ -26,7 +26,7 @@ export const routes = [
   },
   { path: '/transactions', name: 'transactions', component: Transactions,
     beforeEnter(to, from, next) {
-      if (!sessionStorage.getItem("token") || !sessionStorage.getItem("user") || !sessionStorage.getItem('symbols')) {
+      if (!sessionStorage.getItem("token") || !sessionStorage.getItem("user") || !sessionStorage.getItem('symbols') || !sessionStorage.getItem("ohlc")) {
         next('/login')
       } else {
         next();
