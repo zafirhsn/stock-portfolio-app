@@ -86,10 +86,10 @@ module.exports = async (user) => {
     const collection = client.db("users").collection("users");
     let updateResult = await collection.updateOne({ email: user.email }, { $set: { portfolio: newPortfolio } });
 
-    // If fail to update, throw db exception
-    if (!updateResult.modifiedCount) {
-      throw "Failed to update user with new data";
-    } 
+    // // If fail to update, throw db exception
+    // if (!updateResult.modifiedCount) {
+    //   throw "Failed to update user with new data";
+    // } 
     userDoc = await collection.findOne({ email: user.email });
   } 
   return { userDoc, ohlc };
