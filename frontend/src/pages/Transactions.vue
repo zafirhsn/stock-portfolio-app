@@ -1,6 +1,7 @@
 <template>
   <v-container class="mt-12">
     <h1 class="mt-12">Transactions</h1>
+    <span class="subtitle font-italic">Latest to earliest</span>
     <compHeader></compHeader>
     <v-card v-for="(item, index) of transactions" :key="index" class="my-3" color="#eeeeee" flat>
       <v-card-title class="title font-weight-regular">
@@ -55,5 +56,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
+  .subtitle.font-italic {
+    color: #818181;
+  }
 </style>

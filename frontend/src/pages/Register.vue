@@ -30,6 +30,7 @@
         <v-row>
           <v-col>
             <v-alert type="error" v-if="err">{{errMsg}}</v-alert>
+            <v-alert type="success" v-if="success">{{successMsg}}</v-alert>
           </v-col>
         </v-row>
 
@@ -66,7 +67,10 @@ export default {
       valid: false,
       err: false,
       errMsg: '',
+      success: false,
+      successMsg: '',
       submitted: false,
+      // Client side validation rules
       rules: {
         required: v => !!v || "Required",
         len: v => (v.length >= 8 && v.length <=32) || 'Must be between 8 and 32 characters long',
@@ -110,7 +114,13 @@ export default {
               this.repass = '';
               this.submitted = false;        
             } else {
-              this.$router.push('/login');
+              // console.log("success")
+              this.success = true;
+              this.successMsg = "Successfully created user, you will be redirected to log in..."
+              let push = () => {
+                this.$router.push('/login')
+              }
+              setTimeout(push, 3000);
             }
 
 
@@ -127,9 +137,6 @@ export default {
       } else {
         this.submitted = false;
       }
-      //1. Prevent submission if fields empty 
-      //1. check that name contains only letters, hyphens, and apostrophes
-      //2. check that email contains @
 
     }
   }

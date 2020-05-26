@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 /**
  * JWT middleware for express routes to verify the existence of bearer token in header. Does not check token validity. 
  *
+ * @module
+ * @function
  * @param {*} req
  * @param {*} res
  * @param {*} next

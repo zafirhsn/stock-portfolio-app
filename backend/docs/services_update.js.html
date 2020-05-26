@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: controllers/register.js</title>
+    <title>JSDoc: Source: services/update.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: controllers/register.js</h1>
+    <h1 class="page-title">Source: services/update.js</h1>
 
     
 
@@ -26,33 +26,38 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const registerService = require("../services/register");
+            <pre class="prettyprint source linenums"><code>const { client } = require("../db");
+const updatePortfolio = require('../utils/updateportfolio');
 
 /**
- * Register controller for /register. Calls register service to create user. Throws if user with email already exists.
+ * Updates user portfolio value with latest price of all stocks in portfolio
+ * 
  * @module
- * @param {*} req
- * @param {*} res
- * @param {*} next
- * @returns {Object} 200 OK with no data
- * @throws {Object} Sends any custom exceptions to client and wraps all other exceptions in 500 error
+ * @param {Object} payload - Payload object from JWT
+ * @returns {Object} 200 OK, with new user data {user}
+ * @throws {Object}
  */
-module.exports = async (req, res, next) => {
-  if (Object.keys(req.body).length !== 3 || !req.body.name || !req.body.email || !req.body.pass) {
-    return res.sendStatus(400);
-  }
-  try {
-    await registerService(req.body.name, req.body.email, req.body.pass);
-    return res.sendStatus(200);
-  } catch (err) {
-    console.log(err);
-    if (err.status) {
-      return res.status(err.status).send(err.msg);
-    } else {
-      return res.sendStatus(500);
-    }
+module.exports = async (payload) => {
 
+  // Get user
+  const collection = client.db("users").collection("users");
+  const result = await collection.findOne({ email: payload.user.email });
+
+  console.log(result);
+
+  // Update user
+  let { userDoc, ohlc } = await updatePortfolio(result);
+
+  let user = {
+    name: userDoc.name,
+    email: userDoc.email,
+    cash: userDoc.cash,
+    transactions: userDoc.transactions,
+    portfolio: userDoc.portfolio  
   }
+
+  // Send user back
+  return user;
 
 }</code></pre>
         </article>

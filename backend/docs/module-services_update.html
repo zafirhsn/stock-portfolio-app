@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: utils/updateportfolio</title>
+    <title>JSDoc: Module: services/update</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: utils/updateportfolio</h1>
+    <h1 class="page-title">Module: services/update</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Updates user data with latest stock info if they have a portfolio</div>
+            <div class="description">Updates user portfolio value with latest price of all stocks in portfolio</div>
         
 
         
@@ -79,7 +79,7 @@
 
         <tr>
             
-                <td class="name"><code>user</code></td>
+                <td class="name"><code>payload</code></td>
             
 
             <td class="type">
@@ -95,7 +95,7 @@
 
             
 
-            <td class="description last">User object from MongoDB findOne query</td>
+            <td class="description last">Payload object from JWT</td>
         </tr>
 
     
@@ -136,7 +136,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_updateportfolio.js.html">utils/updateportfolio.js</a>, <a href="utils_updateportfolio.js.html#line7">line 7</a>
+        <a href="services_update.js.html">services/update.js</a>, <a href="services_update.js.html#line4">line 4</a>
     </li></ul></dd>
     
 
@@ -165,7 +165,10 @@
 
     <div class="param-desc">
     
-        Any errors from rejected promises or string
+        
+<span class="param-type">Object</span>
+
+
     
     </div>
 
@@ -177,7 +180,7 @@
 
         
 <div class="param-desc">
-    Object with user and open/close data {userDoc, ohlc}
+    200 OK, with new user data {user}
 </div>
 
 

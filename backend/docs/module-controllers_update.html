@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Module: utils/updateportfolio</title>
+    <title>JSDoc: Module: controllers/update</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Module: utils/updateportfolio</h1>
+    <h1 class="page-title">Module: controllers/update</h1>
 
     
 
@@ -38,7 +38,7 @@
     <div class="container-overview">
     
         
-            <div class="description">Updates user data with latest stock info if they have a portfolio</div>
+            <div class="description">Update controller for /update. Calls update service to update user portfolio. Client must send valid JWT for route access.</div>
         
 
         
@@ -79,13 +79,13 @@
 
         <tr>
             
-                <td class="name"><code>user</code></td>
+                <td class="name"><code>req</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">*</span>
 
 
             
@@ -95,7 +95,53 @@
 
             
 
-            <td class="description last">User object from MongoDB findOne query</td>
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>res</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>next</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -136,7 +182,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="utils_updateportfolio.js.html">utils/updateportfolio.js</a>, <a href="utils_updateportfolio.js.html#line7">line 7</a>
+        <a href="controllers_update.js.html">controllers/update.js</a>, <a href="controllers_update.js.html#line4">line 4</a>
     </li></ul></dd>
     
 
@@ -159,25 +205,13 @@
 
 
 
-<h5>Throws:</h5>
-
-        
-
-    <div class="param-desc">
-    
-        Any errors from rejected promises or string
-    
-    </div>
-
-
-    
 
 
 <h5>Returns:</h5>
 
         
 <div class="param-desc">
-    Object with user and open/close data {userDoc, ohlc}
+    Send any custom exceptions to client and wraps all other exceptions in 500 errors
 </div>
 
 

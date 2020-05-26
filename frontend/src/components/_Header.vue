@@ -1,6 +1,5 @@
 <template>
     <v-app-bar fixed elevate-on-scroll height="80" color="white">
-      <span class="title">{{name}}</span>
       <v-spacer></v-spacer>
       <v-btn to="/home" small class="mr-3" depressed>Portfolio</v-btn>
       <v-btn to="/transactions" small class="mr-3" depressed>Transactions</v-btn>
@@ -29,12 +28,13 @@ export default {
     */
     logout() {
       this.$store.state.token = '';
-      this.$store.statesymbols = '';
+      this.$store.state.symbols = '';
       this.$store.state.user.name = '';
       this.$store.state.user.email = '';
       this.$store.state.user.cash = '';
       this.$store.state.user.transactions = [];
       this.$store.state.user.portfolio = [];
+      this.$store.state.ohlc = {};
 
       sessionStorage.clear();
 

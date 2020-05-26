@@ -17,9 +17,11 @@ const updatePortfolio = require('../utils/updateportfolio');
  */
 module.exports = async (email, pass) => {
 
+  // Get user from db
   const collection = client.db("users").collection("users");
   const result = await collection.findOne({ email: email });
 
+  // If user exists, check pass against hashed password in db
   if (result) {
     console.log(result);
 
@@ -28,7 +30,7 @@ module.exports = async (email, pass) => {
       throw { status: 200, msg: "Incorrect password" };
     } else {
 
-      //^ Get all symbols listed in the IEX API
+      // Get all symbols listed in the IEX API
       let url = "https://sandbox.iexapis.com/stable/ref-data/symbols?" + queryString.stringify({
         token: process.env.IEX_API_KEY
       })
@@ -36,9 +38,11 @@ module.exports = async (email, pass) => {
       symbols = JSON.parse(symbols);
       symbols = sanitizeSymbols(symbols);
       
-      //^ Update the user's portfolio if they own stocks
+
+      // Update the user's portfolio if they own stocks
       let { userDoc, ohlc } = await updatePortfolio(result)
 
+      // Rebuild user obj without hashed password and send to client
       let user = {
           name: userDoc.name,
           email,

@@ -1,6 +1,7 @@
 <template>
   <v-container>
     
+    <!-- Use v-for loop to render each transaction from state -->
     <v-card v-for="(item, index) of portfolio" :key="index" class="my-3" :color="color(item)" flat>
       <v-card-title class="title font-weight-regular">
         <v-row dense>

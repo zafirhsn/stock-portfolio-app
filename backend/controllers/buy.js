@@ -2,7 +2,7 @@ const buyService = require("../services/buy");
 const jwt = require("jsonwebtoken");
 
 /**
- * Buy controller for /buy. Updates user portfolio with new shares if user has enough cash. Protected route with JWT
+ * Buy controller for /buy. Updates user portfolio with new shares if user has enough cash. Client must send valid JWT for access to route
  * @module
  * @param {*} req
  * @param {*} res

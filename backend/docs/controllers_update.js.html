@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: controllers/register.js</title>
+    <title>JSDoc: Source: controllers/update.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: controllers/register.js</h1>
+    <h1 class="page-title">Source: controllers/update.js</h1>
 
     
 
@@ -26,24 +26,27 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const registerService = require("../services/register");
+            <pre class="prettyprint source linenums"><code>const updateService = require("../services/update");
+const jwt = require("jsonwebtoken");
 
 /**
- * Register controller for /register. Calls register service to create user. Throws if user with email already exists.
- * @module
+ * Update controller for /update. Calls update service to update user portfolio. Client must send valid JWT for route access. 
+ * @module 
  * @param {*} req
  * @param {*} res
  * @param {*} next
- * @returns {Object} 200 OK with no data
- * @throws {Object} Sends any custom exceptions to client and wraps all other exceptions in 500 error
+ * @returns {Object} Send any custom exceptions to client and wraps all other exceptions in 500 errors
  */
 module.exports = async (req, res, next) => {
-  if (Object.keys(req.body).length !== 3 || !req.body.name || !req.body.email || !req.body.pass) {
+  if (Object.keys(req.body).length) {
     return res.sendStatus(400);
   }
   try {
-    await registerService(req.body.name, req.body.email, req.body.pass);
-    return res.sendStatus(200);
+    let token = req.token;
+    let payload = jwt.verify(token, process.env.SECRET_KEY) 
+    let user = await updateService(payload);
+    return res.send({user})
+
   } catch (err) {
     console.log(err);
     if (err.status) {
@@ -51,7 +54,6 @@ module.exports = async (req, res, next) => {
     } else {
       return res.sendStatus(500);
     }
-
   }
 
 }</code></pre>

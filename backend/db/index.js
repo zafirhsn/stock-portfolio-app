@@ -8,6 +8,7 @@ function connection() {
   })
 } 
 
+// Export db connection and client to use in entry point
 module.exports =  {
   client,
   connection 

@@ -15,8 +15,10 @@ module.exports = async (user) => {
 
   let ohlc = {};
   let userDoc = user;
-
+  // If user has stock in portfolio, update. Else, send back same user object with empty ohlc object
   if (user.transactions.length && user.portfolio.length) {
+
+    // Parse user data for every unique stock they own
     let symbolHash = {};
     for (let item of user.transactions) {
       if (!symbolHash[item.symbol]) {
@@ -28,11 +30,13 @@ module.exports = async (user) => {
         symbolHash[item.symbol] = 1;
       }
     }
+    // Build a string of unique stock owned for IEX api
     let symbolStr = "";
     for (let key of Object.keys(symbolHash)) {
       symbolStr += key.toLowerCase() + ',';
     }
   
+    // Get all quote data from all stock using batch endpoint
     url = "https://sandbox.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
       symbols: symbolStr,
       types: "quote",
@@ -59,10 +63,12 @@ module.exports = async (user) => {
       })
     }
     console.log(newPortfolio);
-    const collection = client.db("users").collection("users");
 
+    // Update user in db with new info
+    const collection = client.db("users").collection("users");
     let updateResult = await collection.updateOne({ email: user.email }, { $set: { portfolio: newPortfolio } });
 
+    // If fail to update, throw db exception
     if (!updateResult.modifiedCount) {
       throw "Failed to update user with new data";
     } 

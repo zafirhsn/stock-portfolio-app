@@ -61,6 +61,7 @@ export default {
       errMsg: '',
       valid: false,
       submitted: false,
+      // Client side validation rules
       rules: {
         required: v => !!v || "Required",
         email: v => /.+@.+\..+/.test(v) || 'E-mail must be valid'

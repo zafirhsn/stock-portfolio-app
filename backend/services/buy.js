@@ -14,27 +14,31 @@ const sanitizeQuotes = require("../utils/sanitizequotes");
  * @throws {Object}
  */
 module.exports = async (ticker, quantity, payload) => {
+
+  // Get user from db
   const collection = client.db("users").collection("users");
   const result = await collection.findOne({ email: payload.user.email });
 
   console.log(result);
 
+  // Retrieve quote for ticker symbol from IEX API
   url = `https://sandbox.iexapis.com/stable/stock/${ticker.toLowerCase()}/quote?token=${process.env.IEX_API_KEY}`
   let quote = await requestPromise.get(url);
   quote = JSON.parse(quote);
-  // console.log(quote);
-  // quote.latestPrice = quote.open;
   console.log(quote);
-  let cost = Number((quote.latestPrice * quantity).toFixed(2))
 
+  // If the cost of the stock is greater than the cash the user has, throw err "Not enough cash"
+  let cost = Number((quote.latestPrice * quantity).toFixed(2))
   if (result.cash < cost) {
     throw { status: 200 , msg: "Not enough cash" }
   } else {
 
+
     let newCash = result.cash - cost;
+
+    // Build new portfolio using quote data
     let newPortfolio = [];
     let newStock = true;
-
     for (let item of result.portfolio) {
       if (item.symbol === ticker) {
         newStock = false;
@@ -57,6 +61,7 @@ module.exports = async (ticker, quantity, payload) => {
 
     console.log("newPortfolio", newPortfolio);
 
+    // Update user with new portfolio and transaction
     let updateResult = await collection.updateOne({ email: result.email }, { 
       $set: { 
         cash: newCash,
@@ -69,6 +74,7 @@ module.exports = async (ticker, quantity, payload) => {
       } 
     })
 
+    // If fail to update, throw err
     if (!updateResult.modifiedCount) {
       throw "Failed to update user with new data";
     }
@@ -81,6 +87,7 @@ module.exports = async (ticker, quantity, payload) => {
       transactions: data.transactions
     }
 
+    // For IEX API Sandbox, open and close information is null during market hours. This block mocks open/close data if that data does not exist in response from IEX. 
     let open, close;
     if (!quote.open) {
       open = Number( (Math.random() * Math.floor(quote.latestPrice)).toFixed(2) );
