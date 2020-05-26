@@ -3,6 +3,7 @@ const queryString = require("query-string");
 const request = require("request");
 const requestPromise = require("request-promise-native");
 const sanitizeQuotes = require("./sanitizequotes");
+const sanitizeOpen = require('../utils/sanitizeopen');
 
 /** 
  * Updates user data with latest stock info if they have a portfolio
@@ -50,6 +51,23 @@ module.exports = async (user) => {
     let data = a.data;
     console.log(data);
     console.log(ohlc);
+
+    // If there is no open price for today, get yesterdays open price, but still use latest price information from original request for quote
+    if (a.notOpen) {
+      // Get all quote data from all stock using batch endpoint
+      console.log("getting previous day");
+      url = "https://cloud.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
+        symbols: symbolStr,
+        types: "previous",
+        token: process.env.IEX_API_KEY
+      });
+
+      let previous = await requestPromise.get(url);
+      previous = JSON.parse(previous);
+      ohlc = sanitizeOpen(previous)
+      console.log(ohlc);
+    }
+    
 
     // Update user portfolio in database with new information from IEX and rewrite new data to database
     let newPortfolio = [];

@@ -3,6 +3,7 @@ const queryString = require("query-string");
 const request = require("request");
 const requestPromise = require("request-promise-native");
 const sanitizeQuotes = require("../utils/sanitizequotes");
+const sanitizeOpen = require('../utils/sanitizeopen');
 
 /**
  * Buy service to purchase shares. First, queries database for user by email and checks if user has enough cash for transactions. Throws if not. If yes, portfolio, transactions, and cash are updated. Returns new user object with open/close data for purchased stock { data, ohlc }
@@ -87,17 +88,20 @@ module.exports = async (ticker, quantity, payload) => {
       transactions: data.transactions
     }
 
-    // For IEX API Sandbox, open and close information is null during market hours. This block mocks open/close data if that data does not exist in response from IEX. 
-    let open, close;
+    // For IEX API Sandbox, open and close information is null during market hours. 
+    let ohlc = {};
     if (!quote.open) {
-      open = Number( (Math.random() * Math.floor(quote.latestPrice)).toFixed(2) );
-    } else { open = quote.open }
-    if (!quote.close) {
-      close = Number((Math.random() * Math.floor(quote.latestPrice)).toFixed(2));
-    } else { close = quote.close }
-    
-    let ohlc = {
-      [ticker]: { open: open, close: close }
+
+      // Get all quote data from stock using previous endpoint
+      console.log("getting previous day");
+      url = `https://cloud.iexapis.com/stable/stock/${ticker.toLowerCase()}/previous?token=${process.env.IEX_API_KEY}`
+
+      let previous = await requestPromise.get(url);
+      previous = JSON.parse(previous);
+      ohlc = sanitizeOpen(previous)
+      console.log(ohlc);
+    } else {
+      ohlc[ticker] = { open: quote.open, close: quote.close }
     }
     return { data: obj, ohlc };
   }

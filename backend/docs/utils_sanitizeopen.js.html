@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: services/register.js</title>
+    <title>JSDoc: Source: utils/sanitizeopen.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: services/register.js</h1>
+    <h1 class="page-title">Source: utils/sanitizeopen.js</h1>
 
     
 
@@ -26,56 +26,22 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const { client } = require("../db");
-const bcrypt = require("bcrypt");
-const SALT_ROUNDS = 10;
-
+            <pre class="prettyprint source linenums"><code>
 /**
- * Register service to create new user on db
- * @module
- * @param {string} name
- * @param {string} email
- * @param {string} pass
- * @returns {void} 
- * @throws { Object }
+ * 
+ *
+ * @param {*} quotes
+ * @returns {Object} Filtered open/close data
  */
-module.exports = async (name, email, pass) => {
-
-  // Retrieve user by email from db
-  const collection = client.db("users").collection("users");
-  const result = await collection.findOne({ email: email });
-
-  // If user exists, throw exception
-  if (result) {
-    throw { status: 200, msg: "An account with that email already exists" };
-  } else {
-    
-    // Salt and hash password using bcrypt
-    let hashedPass = await bcrypt.hash(pass, SALT_ROUNDS);
-    console.log(hashedPass)
-
-    // Build user object
-    let user = {
-      name, 
-      email, 
-      pass: hashedPass,
-      cash: 5000,
-      transactions: [],
-      portfolio: []
+module.exports = (quotes) => {
+  let a = {};
+  for (let stock in quotes) {
+    a[stock] = {
+      open: quotes[stock].previous.open,
+      close: quotes[stock].previous.close
     }
-
-    // Insert new user into db
-    let resultDoc = await collection.insertOne(user)
-
-    // If a user was successfully inserted, then return, otherwise, throw 
-    if (resultDoc.insertedCount) {
-      return
-    } else {
-      throw "Failed to insert user in db"
-    }
-
   }
-
+  return a;
 }</code></pre>
         </article>
     </section>
