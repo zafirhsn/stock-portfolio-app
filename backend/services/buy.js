@@ -22,7 +22,7 @@ module.exports = async (ticker, quantity, payload) => {
   console.log(result);
 
   // Retrieve quote for ticker symbol from IEX API
-  url = `https://sandbox.iexapis.com/stable/stock/${ticker.toLowerCase()}/quote?token=${process.env.IEX_API_KEY}`
+  url = `https://cloud.iexapis.com/stable/stock/${ticker.toLowerCase()}/quote?token=${process.env.IEX_API_KEY}`
   let quote = await requestPromise.get(url);
   quote = JSON.parse(quote);
   console.log(quote);

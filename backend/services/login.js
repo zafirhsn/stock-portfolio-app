@@ -31,7 +31,7 @@ module.exports = async (email, pass) => {
     } else {
 
       // Get all symbols listed in the IEX API
-      let url = "https://sandbox.iexapis.com/stable/ref-data/symbols?" + queryString.stringify({
+      let url = "https://cloud.iexapis.com/stable/ref-data/symbols?" + queryString.stringify({
         token: process.env.IEX_API_KEY
       })
       let symbols = await requestPromise.get(url);

@@ -37,7 +37,7 @@ module.exports = async (user) => {
     }
   
     // Get all quote data from all stock using batch endpoint
-    url = "https://sandbox.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
+    url = "https://cloud.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
       symbols: symbolStr,
       types: "quote",
       token: process.env.IEX_API_KEY
