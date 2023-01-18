@@ -30,9 +30,27 @@ module.exports = async (email, pass) => {
       throw { status: 200, msg: "Incorrect password" };
     } else {
 
-      // Get all symbols listed in the IEX API
-      let url = "https://cloud.iexapis.com/stable/ref-data/symbols?" + queryString.stringify({
-        token: process.env.IEX_API_KEY
+
+    /* 
+      [
+        {
+          "currency": "USD",
+          "description": "PCA CORP",
+          "displaySymbol": "PCRDF",
+          "figi": "BBG000C46G78",
+          "isin": null,
+          "mic": "OOTC",
+          "shareClassFIGI": "BBG001S7MVR9",
+          "symbol": "PCRDF",
+          "symbol2": "",
+          "type": "Common Stock"
+        },
+      ]
+    */
+      // Get all symbols listed from Finnhub API
+      let url = "https://finnhub.io/api/v1/stock/symbol?" + queryString.stringify({
+        exchange: "US",
+        token: process.env.FINNHUB_API_KEY
       })
       let symbols = await requestPromise.get(url);
       symbols = JSON.parse(symbols);

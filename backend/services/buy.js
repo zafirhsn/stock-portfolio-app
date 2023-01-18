@@ -22,14 +22,33 @@ module.exports = async (ticker, quantity, payload) => {
 
   console.log(result);
 
-  // Retrieve quote for ticker symbol from IEX API
-  url = `https://cloud.iexapis.com/stable/stock/${ticker.toLowerCase()}/quote?token=${process.env.IEX_API_KEY}`
+  // Retrieve quote for ticker symbol from Alpha Vantage API
+  url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker.toLowerCase()}&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`
   let quote = await requestPromise.get(url);
   quote = JSON.parse(quote);
   console.log(quote);
 
+  /* 
+  {
+  "Global Quote": {
+    "01. symbol": "GOOG",
+    "02. open": "92.7800",
+    "03. high": "92.9700",
+    "04. low": "90.8400",
+    "05. price": "92.1600",
+    "06. volume": "22935823",
+    "07. latest trading day": "2023-01-17",
+    "08. previous close": "92.8000",
+    "09. change": "-0.6400",
+    "10. change percent": "-0.6897%"
+  }
+  
+  */
+
+  const latestPrice = quote["05. price"];
+
   // If the cost of the stock is greater than the cash the user has, throw err "Not enough cash"
-  let cost = Number((quote.latestPrice * quantity).toFixed(2))
+  let cost = Number((latestPrice * quantity).toFixed(2))
   if (result.cash < cost) {
     throw { status: 200 , msg: "Not enough cash" }
   } else {
@@ -46,7 +65,7 @@ module.exports = async (ticker, quantity, payload) => {
         newPortfolio.push({
           symbol: item.symbol,
           shares: item.shares + quantity,
-          value: Number(((item.shares + quantity) * quote.latestPrice).toFixed(2))
+          value: Number(((item.shares + quantity) * latestPrice).toFixed(2))
         })
       } else {
         newPortfolio.push(item)
@@ -56,7 +75,7 @@ module.exports = async (ticker, quantity, payload) => {
       newPortfolio.push({
         symbol: ticker,
         shares: quantity,
-        value: Number((quantity * quote.latestPrice).toFixed(2))
+        value: Number((quantity * latestPrice).toFixed(2))
       })
     }
 
@@ -70,7 +89,7 @@ module.exports = async (ticker, quantity, payload) => {
       }, 
       $push: { 
         transactions: { 
-          symbol: ticker, shares: quantity, price: Number((quote.latestPrice * quantity).toFixed(2)) 
+          symbol: ticker, shares: quantity, price: Number((latestPrice * quantity).toFixed(2)) 
         } 
       } 
     })
