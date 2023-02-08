@@ -1,32 +1,29 @@
 
 /**
- * Filters data needed from quotes data from IEX
+ * Filters data needed from quotes data from Alpha Vantage
  * @module
  * @function
- * @param {Object} quotes - Body from IEX quotes request
+ * @param {Object} quotes - Array of quote results from Alpha Vantage as result of Promise.all()
  * @returns {Object} Filtered latestPrice data and open/close {data, ohlc}
  */
 module.exports = (quotes) => {
   let data = {};
   let ohlc = {};
 
-  let notOpen = false;
-  for (let symbol in quotes) {
+  for (let q of quotes) {
+    q = JSON.parse(q);
+    const symbol = (q["Global Quote"]["01. symbol"]);
     data[symbol] = {
-      symbol: quotes[symbol].quote.symbol,
-      latestPrice: quotes[symbol].quote.latestPrice
+      symbol: symbol,
+      latestPrice: q["Global Quote"]["05. price"],
     }
 
-    // Mocks open/close data from IEX if that data does not exist. Used for IEX Sandbox, not production api.
-    if (!quotes[symbol].quote.open || !quotes[symbol].quote.close) {
-      notOpen = true;
-    }
-    let open = quotes[symbol].quote.open
-    let close = quotes[symbol].quote.close
+    let open = q["Global Quote"]["02. open"];
+    let close = q["Global Quote"]["08. previous close"];
     ohlc[symbol] = {
       open,
       close
     }
   }
-  return { data, ohlc, notOpen };
+  return { data, ohlc };
 }

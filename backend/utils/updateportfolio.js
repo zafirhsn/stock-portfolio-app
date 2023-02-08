@@ -20,54 +20,31 @@ module.exports = async (user) => {
   if (user.transactions.length && user.portfolio.length) {
 
     // Parse user data for every unique stock they own
-    let symbolHash = {};
+    let symbolSet = new Set();
     for (let item of user.transactions) {
-      if (!symbolHash[item.symbol]) {
-        symbolHash[item.symbol] = 1;
-      }
+      symbolSet.add(item.symbol);
     }
     for (let item of user.portfolio) {
-      if (!symbolHash[item.symbol]) {
-        symbolHash[item.symbol] = 1;
-      }
+      symbolSet.add(item.symbol);
     }
-    // Build a string of unique stock owned for IEX api
-    let symbolStr = "";
-    for (let key of Object.keys(symbolHash)) {
-      symbolStr += key.toLowerCase() + ',';
-    }
-  
-    // Get all quote data from all stock using batch endpoint
-    url = "https://cloud.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
-      symbols: symbolStr,
-      types: "quote",
-      token: process.env.IEX_API_KEY
+
+    // Build an array of promises requesting the quote for each symbol from symbolSet
+    let quotePromiseArr = [];
+    for (let sym of symbolSet) {
+      const url = "https://www.alphavantage.co/query?" + queryString.stringify({
+        function: "GLOBAL_QUOTE",
+        symbol: sym,
+        apikey: process.env.ALPHA_VANTAGE_API_KEY 
     });
-  
-    let quotes = await requestPromise.get(url);
-    quotes = JSON.parse(quotes);
+      quotePromiseArr.push(requestPromise.get(url));
+    }
+    const quotes = await Promise.all(quotePromiseArr);
+    // quotes = JSON.parse(quotes);
     let a = sanitizeQuotes(quotes);
     ohlc = a.ohlc;
     let data = a.data;
     console.log(data);
     console.log(ohlc);
-
-    // If there is no open price for today, get yesterdays open price, but still use latest price information from original request for quote
-    if (a.notOpen) {
-      // Get all quote data from all stock using batch endpoint
-      console.log("getting previous day");
-      url = "https://cloud.iexapis.com/stable/stock/market/batch?" + queryString.stringify({
-        symbols: symbolStr,
-        types: "previous",
-        token: process.env.IEX_API_KEY
-      });
-
-      let previous = await requestPromise.get(url);
-      previous = JSON.parse(previous);
-      ohlc = sanitizeOpen(previous)
-      console.log(ohlc);
-    }
-    
 
     // Update user portfolio in database with new information from IEX and rewrite new data to database
     let newPortfolio = [];

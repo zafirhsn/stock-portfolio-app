@@ -6,7 +6,7 @@
     <!-- _Portfolio component -->
     <v-col cols="12" sm="5" align="center" justify="start">
         <h1 class="my-5">Portfolio - ${{portfolioValue}}</h1>
-        <span class="subtitle font-italic">Data updated every 15 seconds</span>
+        <span class="subtitle font-italic">Data updated every 1 minute</span>
         <compPortfolio></compPortfolio>
     </v-col>
 
@@ -32,8 +32,6 @@
 
   </v-row>
 
-  <!-- Needed reference to IEX -->
-  <a href="https://iexcloud.io">Data provided by IEX Cloud</a>
 </v-container>
 </template>
 
@@ -179,16 +177,16 @@ export default {
           this.$set(this.$store.state.user, "portfolio", user.portfolio);
           sessionStorage.setItem("user", JSON.stringify(user));
 
-          this.timer = setTimeout(poll, 15000);
+          this.timer = setTimeout(poll, 60000);
 
         }).catch(error => {
-          this.timer = setTimeout(poll, 15000);
+          this.timer = setTimeout(poll, 60000);
           return error;
         })
       }
 
     }
-    this.timer = setTimeout(poll, 15000)
+    this.timer = setTimeout(poll, 60000)
   },
   // Clear the timer before the user clears the component so no requests are made outside of this route
   beforeDestroy() {

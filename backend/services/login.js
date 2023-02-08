@@ -29,24 +29,6 @@ module.exports = async (email, pass) => {
     if (!correctPass) {
       throw { status: 200, msg: "Incorrect password" };
     } else {
-
-
-    /* 
-      [
-        {
-          "currency": "USD",
-          "description": "PCA CORP",
-          "displaySymbol": "PCRDF",
-          "figi": "BBG000C46G78",
-          "isin": null,
-          "mic": "OOTC",
-          "shareClassFIGI": "BBG001S7MVR9",
-          "symbol": "PCRDF",
-          "symbol2": "",
-          "type": "Common Stock"
-        },
-      ]
-    */
       // Get all symbols listed from Finnhub API
       let url = "https://finnhub.io/api/v1/stock/symbol?" + queryString.stringify({
         exchange: "US",
